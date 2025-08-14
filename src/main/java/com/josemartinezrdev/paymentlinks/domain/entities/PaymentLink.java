@@ -2,6 +2,7 @@ package com.josemartinezrdev.paymentlinks.domain.entities;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -33,6 +34,7 @@ public class PaymentLink {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "merchant_id", nullable = false)
+    @JsonIgnore
     private Merchant merchant;
 
     @Column(nullable = false, unique = true)
@@ -75,6 +77,13 @@ public class PaymentLink {
         if (status == null) {
             status = PaymentStatus.CREATED;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "PaymentLink [id=" + id + ", merchant=" + merchant + ", reference=" + reference + ", amountCent="
+                + amountCent + ", currency=" + currency + ", description=" + description + ", status=" + status
+                + ", createdAt=" + createdAt + ", paidAt=" + paidAt + ", metadata=" + metadata + "]";
     }
 
     public PaymentLink() {

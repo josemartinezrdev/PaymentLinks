@@ -22,12 +22,13 @@ public class PaymentLinkImp implements IPaymentLink {
 
     @Override
     public PaymentLink create(PaymentLink paymentLink) {
+        System.out.println("HOLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" + paymentLink.toString());
         paymentLinkRepository.findByReference(paymentLink.getReference()).ifPresent(
                 paymentLinkFound -> {
                     throw new GlobalExceptions("La referncia ya existe");
                 });
 
-        if (paymentLink.getAmountCent() <= 0) {
+        if (paymentLink.getAmountCent() == null || paymentLink.getAmountCent() <= 0) {
             throw new GlobalExceptions("El monto debe ser mayor a 0");
         }
 
