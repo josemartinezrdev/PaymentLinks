@@ -2,7 +2,7 @@ package com.josemartinezrdev.paymentlinks.domain.entities;
 
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -34,7 +34,7 @@ public class PaymentLink {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "merchant_id", nullable = false)
-    @JsonIgnore
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Merchant merchant;
 
     @Column(nullable = false, unique = true)

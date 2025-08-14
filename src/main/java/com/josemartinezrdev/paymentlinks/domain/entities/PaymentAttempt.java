@@ -2,6 +2,8 @@ package com.josemartinezrdev.paymentlinks.domain.entities;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -29,6 +31,7 @@ public class PaymentAttempt {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "payment_link_id", nullable = false)
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private PaymentLink paymentLink;
 
     @Enumerated(EnumType.STRING)
