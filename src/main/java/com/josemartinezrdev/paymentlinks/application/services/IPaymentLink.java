@@ -14,7 +14,7 @@ public interface IPaymentLink {
     Optional<PaymentLink> findByReference(String reference);
 
     List<PaymentLink> findByMerchantId(Long merchantId);
-    
+
     PaymentLink update(PaymentLink paymentLink);
 
     PaymentLink delete(Long id);
@@ -25,5 +25,4 @@ public interface IPaymentLink {
 
     PaymentLink markAsPaid(Long id);
 
-    void expireLinks();
 }

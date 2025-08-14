@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.josemartinezrdev.paymentlinks.application.services.IMerchant;
 import com.josemartinezrdev.paymentlinks.domain.entities.Merchant;
+import com.josemartinezrdev.paymentlinks.utils.exceptions.GlobalExceptions;
 
 @Service
 @Transactional
@@ -21,38 +22,51 @@ public class MerchantImp implements IMerchant {
 
     @Override
     public Merchant create(Merchant merchant) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'create'");
+        if (merchant.getName() == null || merchant.getName().isBlank()) {
+            throw new GlobalExceptions("El Nombre del Merchant no puede estar vacío");
+        }
+        if (merchant.getEmail() == null || merchant.getEmail().isBlank()) {
+            throw new GlobalExceptions("El Email del Merchant no puede estar vacío");
+        }
+        Optional<Merchant> existing = merchantRepository.findByEmail(merchant.getEmail());
+        if (existing.isPresent()) {
+            throw new GlobalExceptions("El Email del Merchant ya existe");
+        }
+        return merchantRepository.save(merchant);
     }
 
     @Override
     public Optional<Merchant> findById(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findById'");
+        return merchantRepository.findById(id);
     }
 
     @Override
     public Optional<Merchant> findByEmail(String email) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByEmail'");
+        return merchantRepository.findByEmail(email);
     }
 
     @Override
     public List<Merchant> findAll() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findAll'");
+        return merchantRepository.findAll();
     }
 
     @Override
     public Merchant update(Merchant merchant) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'update'");
+        Merchant existing = merchantRepository.findById(merchant.getId())
+                .orElseThrow(() -> new GlobalExceptions("El Merchant no existe"));
+        existing.setName(merchant.getName());
+        existing.setEmail(merchant.getEmail());
+        existing.setPasswordHash(merchant.getPasswordHash());
+
+        return merchantRepository.save(existing);
     }
 
     @Override
     public Merchant delete(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+        Merchant existing = merchantRepository.findById(id)
+                .orElseThrow(() -> new GlobalExceptions("El Merchant no existe"));
+        merchantRepository.delete(existing);
+        return existing;
     }
 
 }
