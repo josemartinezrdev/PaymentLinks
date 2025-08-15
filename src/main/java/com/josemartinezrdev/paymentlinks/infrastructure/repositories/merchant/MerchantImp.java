@@ -3,6 +3,7 @@ package com.josemartinezrdev.paymentlinks.infrastructure.repositories.merchant;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,9 +16,11 @@ import com.josemartinezrdev.paymentlinks.utils.exceptions.GlobalExceptions;
 public class MerchantImp implements IMerchant {
 
     private final MerchantRepository merchantRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    public MerchantImp(MerchantRepository merchantRepository) {
+    public MerchantImp(MerchantRepository merchantRepository, BCryptPasswordEncoder passwordEncoder) {
         this.merchantRepository = merchantRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -32,6 +35,9 @@ public class MerchantImp implements IMerchant {
         if (existing.isPresent()) {
             throw new GlobalExceptions("El Email del Merchant ya existe");
         }
+
+        merchant.setPasswordHash(passwordEncoder.encode(merchant.getPasswordHash()));
+
         return merchantRepository.save(merchant);
     }
 
@@ -56,7 +62,9 @@ public class MerchantImp implements IMerchant {
                 .orElseThrow(() -> new GlobalExceptions("El Merchant no existe"));
         existing.setName(merchant.getName());
         existing.setEmail(merchant.getEmail());
-        existing.setPasswordHash(merchant.getPasswordHash());
+        if (merchant.getPasswordHash() != null && !merchant.getPasswordHash().isBlank()) {
+            existing.setPasswordHash(passwordEncoder.encode(merchant.getPasswordHash()));
+        }
 
         return merchantRepository.save(existing);
     }
