@@ -15,4 +15,6 @@ public interface PaymentLinkRepository extends JpaRepository<PaymentLink, Long> 
 
     List<PaymentLink> findByMerchantId(Long merchantId);
 
+    List<PaymentLink> findByStatus(PaymentLink.PaymentStatus status);
+
 }

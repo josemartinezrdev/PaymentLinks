@@ -58,6 +58,9 @@ public class PaymentLink {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "expires_at", nullable = false)
+    private LocalDateTime expiresAt;
+
     @Column(name = "paid_at", nullable = true)
     private LocalDateTime paidAt;
 
@@ -77,20 +80,18 @@ public class PaymentLink {
         if (status == null) {
             status = PaymentStatus.CREATED;
         }
-    }
 
-    @Override
-    public String toString() {
-        return "PaymentLink [id=" + id + ", merchant=" + merchant + ", reference=" + reference + ", amountCent="
-                + amountCent + ", currency=" + currency + ", description=" + description + ", status=" + status
-                + ", createdAt=" + createdAt + ", paidAt=" + paidAt + ", metadata=" + metadata + "]";
+        if (expiresAt == null) {
+            expiresAt = this.createdAt.plusHours(2);
+        }
     }
 
     public PaymentLink() {
     }
 
     public PaymentLink(Long id, Merchant merchant, String reference, Integer amountCent, String currency,
-            String description, PaymentStatus status, LocalDateTime createdAt, LocalDateTime paidAt, String metadata) {
+            String description, PaymentStatus status, LocalDateTime createdAt, LocalDateTime expiresAt,
+            LocalDateTime paidAt, String metadata) {
         this.id = id;
         this.merchant = merchant;
         this.reference = reference;
@@ -99,6 +100,7 @@ public class PaymentLink {
         this.description = description;
         this.status = status;
         this.createdAt = createdAt;
+        this.expiresAt = expiresAt;
         this.paidAt = paidAt;
         this.metadata = metadata;
     }
@@ -165,6 +167,14 @@ public class PaymentLink {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getExpiresAt() {
+        return this.expiresAt;
+    }
+
+    public void setExpiresAt(LocalDateTime expiresAt) {
+        this.expiresAt = expiresAt;
     }
 
     public LocalDateTime getPaidAt() {

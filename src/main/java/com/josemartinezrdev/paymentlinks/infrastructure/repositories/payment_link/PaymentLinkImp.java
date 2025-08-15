@@ -22,7 +22,6 @@ public class PaymentLinkImp implements IPaymentLink {
 
     @Override
     public PaymentLink create(PaymentLink paymentLink) {
-        System.out.println("HOLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" + paymentLink.toString());
         paymentLinkRepository.findByReference(paymentLink.getReference()).ifPresent(
                 paymentLinkFound -> {
                     throw new GlobalExceptions("La referncia ya existe");
@@ -98,5 +97,10 @@ public class PaymentLinkImp implements IPaymentLink {
         existing.setPaidAt(java.time.LocalDateTime.now());
 
         return paymentLinkRepository.save(existing);
+    }
+
+    @Override
+    public List<PaymentLink> findAllCreated() {
+        return paymentLinkRepository.findByStatus(PaymentLink.PaymentStatus.CREATED);
     }
 }
