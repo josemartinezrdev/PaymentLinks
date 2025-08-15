@@ -21,6 +21,8 @@ public interface IPaymentLink {
 
     List<PaymentLink> findAllCreated();
 
+    List<PaymentLink> findAllLinks();
+
     // @info: Métodos de lógica de negocio
 
     PaymentLink cancelledLink(Long id);

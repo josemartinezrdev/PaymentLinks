@@ -80,4 +80,9 @@ public class PaymentLinkController {
         PaymentAttempt attempt = paymentAttemptService.attemptPayment(id, idempotencyKey);
         return ResponseEntity.ok(attempt);
     }
+
+    @GetMapping
+    public ResponseEntity<List<PaymentLink>> getAllByCurrentMerchant() {
+        return ResponseEntity.ok(paymentLinkService.findAllLinks());
+    }
 }

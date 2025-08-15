@@ -112,4 +112,10 @@ public class PaymentLinkImp implements IPaymentLink {
     public List<PaymentLink> findAllCreated() {
         return paymentLinkRepository.findByStatus(PaymentLink.PaymentStatus.CREATED);
     }
+
+    @Override
+    public List<PaymentLink> findAllLinks() {
+        Merchant currentMerchant = SecurityUtils.getCurrentMerchantFromJWT(merchantService);
+        return paymentLinkRepository.findAllByMerchantId(currentMerchant.getId());
+    }
 }
