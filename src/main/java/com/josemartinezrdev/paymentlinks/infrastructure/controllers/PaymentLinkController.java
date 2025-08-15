@@ -9,10 +9,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.josemartinezrdev.paymentlinks.application.services.IPaymentAttempt;
 import com.josemartinezrdev.paymentlinks.application.services.IPaymentLink;
+import com.josemartinezrdev.paymentlinks.domain.entities.PaymentAttempt;
 import com.josemartinezrdev.paymentlinks.domain.entities.PaymentLink;
 import com.josemartinezrdev.paymentlinks.utils.exceptions.GlobalExceptions;
 
@@ -21,9 +24,11 @@ import com.josemartinezrdev.paymentlinks.utils.exceptions.GlobalExceptions;
 public class PaymentLinkController {
 
     private final IPaymentLink paymentLinkService;
+    private final IPaymentAttempt paymentAttemptService;
 
-    public PaymentLinkController(IPaymentLink paymentLinkService) {
+    public PaymentLinkController(IPaymentLink paymentLinkService, IPaymentAttempt paymentAttemptService) {
         this.paymentLinkService = paymentLinkService;
+        this.paymentAttemptService = paymentAttemptService;
     }
 
     @PostMapping
@@ -69,8 +74,10 @@ public class PaymentLinkController {
     }
 
     @PostMapping("/{id}/pay")
-    public ResponseEntity<PaymentLink> pay(@PathVariable Long id) {
-        PaymentLink paid = paymentLinkService.markAsPaid(id);
-        return ResponseEntity.ok(paid);
+    public ResponseEntity<PaymentAttempt> pay(@PathVariable Long id,
+            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey) {
+
+        PaymentAttempt attempt = paymentAttemptService.attemptPayment(id, idempotencyKey);
+        return ResponseEntity.ok(attempt);
     }
 }

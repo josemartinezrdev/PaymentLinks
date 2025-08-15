@@ -24,7 +24,4 @@ public interface IPaymentLink {
     // @info: Métodos de lógica de negocio
 
     PaymentLink cancelledLink(Long id);
-
-    PaymentLink markAsPaid(Long id);
-
 }

@@ -6,7 +6,10 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.josemartinezrdev.paymentlinks.application.services.IMerchant;
 import com.josemartinezrdev.paymentlinks.application.services.IPaymentLink;
+import com.josemartinezrdev.paymentlinks.config.security.SecurityUtils;
+import com.josemartinezrdev.paymentlinks.domain.entities.Merchant;
 import com.josemartinezrdev.paymentlinks.domain.entities.PaymentLink;
 import com.josemartinezrdev.paymentlinks.utils.exceptions.GlobalExceptions;
 
@@ -15,9 +18,11 @@ import com.josemartinezrdev.paymentlinks.utils.exceptions.GlobalExceptions;
 public class PaymentLinkImp implements IPaymentLink {
 
     private final PaymentLinkRepository paymentLinkRepository;
+    private final IMerchant merchantService;
 
-    public PaymentLinkImp(PaymentLinkRepository paymentLinkRepository) {
+    public PaymentLinkImp(PaymentLinkRepository paymentLinkRepository, IMerchant merchantService) {
         this.paymentLinkRepository = paymentLinkRepository;
+        this.merchantService = merchantService;
     }
 
     @Override
@@ -36,7 +41,21 @@ public class PaymentLinkImp implements IPaymentLink {
 
     @Override
     public Optional<PaymentLink> findById(Long id) {
-        return paymentLinkRepository.findById(id);
+        Optional<PaymentLink> optionalLink = paymentLinkRepository.findById(id);
+
+        if (optionalLink.isEmpty()) {
+            return Optional.empty();
+        }
+
+        PaymentLink link = optionalLink.get();
+
+        Merchant currentMerchant = SecurityUtils.getCurrentMerchantFromJWT(merchantService);
+
+        if (!link.getMerchant().getId().equals(currentMerchant.getId())) {
+            return Optional.empty();
+        }
+
+        return Optional.of(link);
     }
 
     @Override
@@ -75,27 +94,17 @@ public class PaymentLinkImp implements IPaymentLink {
             throw new GlobalExceptions("El PaymentLink no existe");
         });
 
+        Merchant currentMerchant = SecurityUtils.getCurrentMerchantFromJWT(merchantService);
+
+        if (!existing.getMerchant().getId().equals(currentMerchant.getId())) {
+            throw new GlobalExceptions("No tienes permisos para interactuar con este link");
+        }
+
         if (existing.getStatus() == PaymentLink.PaymentStatus.PAID) {
             throw new GlobalExceptions("No se puede cancelar un PaymentLink pago");
         }
 
         existing.setStatus(PaymentLink.PaymentStatus.CANCELLED);
-        return paymentLinkRepository.save(existing);
-    }
-
-    @Override
-    public PaymentLink markAsPaid(Long id) {
-        PaymentLink existing = paymentLinkRepository.findById(id).orElseThrow(() -> {
-            throw new GlobalExceptions("El PaymentLink no existe");
-        });
-
-        if (existing.getStatus() != PaymentLink.PaymentStatus.CREATED) {
-            throw new GlobalExceptions("El PaymentLink no se puede pagar");
-        }
-
-        existing.setStatus(PaymentLink.PaymentStatus.PAID);
-        existing.setPaidAt(java.time.LocalDateTime.now());
-
         return paymentLinkRepository.save(existing);
     }
 
